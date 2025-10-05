@@ -3,19 +3,19 @@ from setuptools import setup, find_packages
 setup(
     name="mcp-team-recruit",
     version="1.0.0",
-    description="MAICON 2025 팀 빌딩 MCP 서버 - HTTP wrapper for Claude Desktop",
+    description="MAICON 2025 팀 빌딩 MCP 서버 (FastMCP HTTP)",
     author="김정훈",
     author_email="your-email@example.com",
     url="https://github.com/yourusername/mcp-team-recruit",
-    py_modules=["mcp_client"],
+    py_modules=["server"],
     install_requires=[
-        "httpx>=0.24.0",
+        "mcp>=0.1.0",
+        "uvicorn>=0.30.0",
+        "starlette>=0.38.0",
+        "httpx>=0.27.0",
+        "pydantic>=2.7.0",
+        "email-validator>=2.1.0",
     ],
-    entry_points={
-        "console_scripts": [
-            "mcp-team-recruit=mcp_client:main",
-        ],
-    },
     python_requires=">=3.8",
     classifiers=[
         "Development Status :: 4 - Beta",
