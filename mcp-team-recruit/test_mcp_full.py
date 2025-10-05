@@ -3,6 +3,7 @@
 MCP 서버 전체 통합 테스트
 MCP SDK를 사용한 실제 프로토콜 테스트
 """
+import os
 import asyncio
 import json
 
@@ -11,6 +12,9 @@ import anyio
 
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
+
+# Ensure API key for test auth is set before importing server
+os.environ.setdefault("MCP_API_KEY", "test-key")
 
 from server import mcp, _wrap_with_accept_normalizer
 
@@ -42,7 +46,10 @@ async def test_mcp_server():
         async with mcp.session_manager.run():
             async with streamablehttp_client(
                 "http://testserver/mcp",
-                headers={"Accept": "application/json, text/event-stream"},
+                headers={
+                    "Accept": "application/json, text/event-stream",
+                    "Authorization": f"Bearer {os.getenv('MCP_API_KEY')}",
+                },
                 httpx_client_factory=_httpx_client_factory,
             ) as (read, write, _):
                 async with ClientSession(read, write) as session:
