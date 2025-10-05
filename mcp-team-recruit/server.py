@@ -8,13 +8,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr, ValidationError, Field
-from starlette.applications import Starlette
-from starlette.routing import Mount, Route
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import JSONResponse, PlainTextResponse
-from starlette.status import HTTP_401_UNAUTHORIZED
+from pydantic import BaseModel, ValidationError, Field
 import httpx
 
 # MCP SDK
@@ -319,49 +313,16 @@ MAICON 팀 빌딩 기간이 종료되면 이 서버도 함께 종료됩니다.
 하지만 **대화는 언제든지 환영**입니다! 편하게 연락 주세요.
 """
 
-# --- ASGI 앱 구성 ---
-mcp_asgi = mcp.streamable_http_app()
-
-class AuthMiddleware(BaseHTTPMiddleware):
-    """Bearer 토큰 인증 미들웨어"""
-    async def dispatch(self, request: Request, call_next):
-        # 헬스체크는 무인증
-        if request.url.path == "/healthz":
-            return await call_next(request)
-
-        # API 키 검증
-        if API_KEY:
-            auth_header = request.headers.get("authorization", "")
-            if not auth_header.startswith("Bearer "):
-                return JSONResponse(
-                    {"error": "Missing or invalid Authorization header"},
-                    status_code=HTTP_401_UNAUTHORIZED
-                )
-
-            token = auth_header.replace("Bearer ", "")
-            if token != API_KEY:
-                logger.warning(f"Invalid token attempt from {request.client.host}")
-                return JSONResponse(
-                    {"error": "Invalid token"},
-                    status_code=HTTP_401_UNAUTHORIZED
-                )
-
-        return await call_next(request)
-
-async def healthz(request: Request):
-    """헬스체크 엔드포인트"""
-    return PlainTextResponse("ok")
-
-app = Starlette(
-    routes=[
-        Route("/healthz", healthz, methods=["GET"]),
-        Mount("/", app=mcp_asgi),
-    ]
-)
-app.add_middleware(AuthMiddleware)
+# --- HTTP 서버 실행 함수 ---
+# FastMCP streamable-http ASGI app 생성 (엔드포인트: POST /mcp)
+app = mcp.streamable_http_app()
 
 if __name__ == "__main__":
     import uvicorn
+
+    # Cloud Run PORT 환경 변수 사용
     port = int(os.getenv("PORT", "8080"))
     logger.info(f"Starting MCP server on port {port}")
+
+    # Uvicorn으로 직접 실행
     uvicorn.run(app, host="0.0.0.0", port=port)

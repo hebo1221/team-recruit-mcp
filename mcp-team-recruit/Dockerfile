@@ -23,9 +23,5 @@ RUN mkdir -p /app/data
 ENV PORT=8080
 EXPOSE 8080
 
-# 헬스체크
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"
-
-# 서버 실행
+# 서버 실행 (FastMCP streamable-http ASGI app)
 CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080"]
