@@ -7,6 +7,7 @@ setup(
     author="김정훈",
     author_email="your-email@example.com",
     url="https://github.com/yourusername/mcp-team-recruit",
+    packages=find_packages(),
     py_modules=["server"],
     install_requires=[
         "mcp>=0.1.0",

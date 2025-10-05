@@ -1,6 +1,6 @@
 # 🎯 MAICON 2025 팀 빌딩 MCP 서버
 
-Claude Desktop에서 바로 팀 지원서를 제출할 수 있는 MCP 서버입니다.
+MCP(Model Context Protocol)를 통해 팀 지원서를 제출하고 팀 정보를 조회할 수 있는 HTTP 기반 서버입니다.
 
 ## 🚀 빠른 시작
 
@@ -14,24 +14,24 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Claude Desktop HTTP 커넥터 등록
+### 2. MCP 클라이언트 설정
 
-1. Claude Desktop을 실행하고 **Settings → Connectors** 메뉴로 이동합니다.
-2. **Add custom connector**를 선택하고 아래 값을 입력합니다.
+- **Claude Desktop**: **Settings → Connectors → Add custom connector**에서 다음 값을 입력하세요.
 
-```json
-{
-  "name": "MAICON 2025 Team Recruit",
-  "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp",
-  "headers": {
-    "Accept": "application/json, text/event-stream"
+  ```json
+  {
+    "name": "MAICON 2025 Team Recruit",
+    "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp"
   }
-}
-```
+  ```
 
-> 인증 토큰을 사용 중이라면 `headers`에 `Authorization` 헤더를 함께 추가하세요.
-
-3. 저장한 뒤 Claude Desktop을 재시작하면 커넥터가 목록에 나타납니다.
+- **Cursor 등 기타 MCP 클라이언트**: 설정 파일에 동일한 URL을 등록하면 됩니다.
+  ```json
+    "maicon2025-team-recruit": {
+      "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp"
+    }
+  ```
+> 인증 토큰이 필요한 환경이라면 `Authorization: Bearer <TOKEN>` 헤더를 추가하세요.
 
 ## 🔧 사용 방법
 
@@ -60,19 +60,12 @@ team.apply() 도구로 지원서를 제출해줘.
 AI 구독: Claude Pro
 ```
 
-## 💡 참고사항
-
-- **지원 대상**: 장병, 사관생도만 지원 가능
-- **일반인**: 안타깝게도 대회 규정상 일반인 지원은 불가능합니다
-- **알림**: 지원서 제출 시 팀장의 Slack으로 즉시 알림 전송
-
 ## 🛠️ 문제 해결
 
 ### MCP 서버가 연결되지 않을 때
 
-1. **HTTP 헤더 확인**: `Accept` 헤더에 `application/json`과 `text/event-stream`이 모두 포함되어야 합니다.
-2. **Authorization**: 토큰을 요구하는 환경이라면 `Authorization: Bearer <TOKEN>`을 함께 전달하세요.
-3. **재시작**: 커넥터 추가 후 Claude Desktop을 완전히 종료했다가 다시 실행해 주세요.
+1. **헤더 확인**: 토큰이 필요한 환경이라면 `Authorization: Bearer <TOKEN>`을 전달하세요.
+2. **재시작**: 커넥터 추가 후 클라이언트를 완전히 종료했다가 다시 실행해 주세요.
 
 ### 터미널에서 직접 테스트
 

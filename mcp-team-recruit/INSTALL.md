@@ -1,88 +1,83 @@
-# MAICON 2025 팀 빌딩 MCP 서버 설치 가이드
+# 설치 및 설정 가이드 (HTTP MCP 전용)
 
-## 🚀 빠른 설치
+이 문서는 MAICON 2025 팀 빌딩 MCP 서버를 HTTP 전송 방식으로 사용하기 위한 설정 방법을 다룹니다.
 
-### 1️⃣ Python 패키지 설치
+## 1. 의존성 설치
+
 ```bash
-pip install git+https://github.com/yourusername/mcp-team-recruit.git
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### 2️⃣ Claude Desktop 설정
+## 2. 서버 실행 (로컬 개발용)
 
-**설정 파일 위치**:
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+```bash
+export MCP_API_KEY=REDACTED
+uvicorn server:app --host 0.0.0.0 --port 8080
+```
 
-**설정 추가**:
+## 3. Claude Desktop 커넥터 추가
+
+1. **Settings → Connectors** 로 이동합니다.
+2. **Add custom connector** 를 선택하고 아래 값을 입력합니다.
+
+```json
+{
+  "name": "MAICON 2025 Team Recruit",
+  "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp",
+  "headers": {
+    "Accept": "application/json, text/event-stream"
+  }
+}
+```
+
+> 토큰이 필요한 환경이라면 `Authorization: Bearer <TOKEN>` 헤더를 함께 추가하세요.
+
+## 4. Cursor / 기타 MCP 클라이언트 설정
+
+`~/.cursor/mcp.json` 예시:
+
 ```json
 {
   "mcpServers": {
     "maicon2025-team-recruit": {
-      "command": "mcp-team-recruit"
+      "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp",
+      "headers": {
+        "Accept": "application/json, text/event-stream"
+      }
     }
   }
 }
 ```
 
-기존 설정이 있다면:
-```json
-{
-  "mcpServers": {
-    "existing-server": {
-      "command": "..."
-    },
-    "maicon2025-team-recruit": {
-      "command": "mcp-team-recruit"
-    }
-  }
-}
-```
-
-### 3️⃣ Claude Desktop 재시작
-
-설정을 적용하려면 Claude Desktop을 완전히 종료 후 재시작하세요.
-
-## 📦 로컬 설치 (개발용)
+## 5. 연결 테스트
 
 ```bash
-git clone https://github.com/yourusername/mcp-team-recruit.git
-cd mcp-team-recruit
-pip install -e .
+curl -i \
+  -X POST "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp" \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"clientInfo":{"name":"curl","version":"1.0"},"protocolVersion":"2024-11-05"}}'
 ```
 
-## 🔧 사용 가능한 도구
+응답으로 `HTTP/2 200`과 `event: message`가 확인되면 정상 연결된 것입니다.
 
-Claude Desktop에서 다음 도구들을 사용할 수 있습니다:
+## 6. 트러블슈팅
 
-- **team.ping()** - 서버 연결 테스트
-- **team.greeting()** - 팀장 인사말 확인
-- **team.faq()** - 자주 묻는 질문
-- **team.apply()** - 팀 지원서 제출
+- **406 Not Acceptable**: `Accept` 헤더에 `application/json`과 `text/event-stream`이 모두 포함되어 있는지 확인하세요.
+- **401/403 응답**: 토큰이 필요한 환경인지 확인하고 `Authorization` 헤더를 추가하세요.
+- **세션 ID 관련 오류**: `initialize` 응답의 `mcp-session-id` 헤더가 노출되었는지 확인하세요. 브라우저 기반 클라이언트는 CORS 노출 헤더가 필요합니다.
 
-## 🛠️ 작동 원리
+## 7. 배포
 
-이 프로젝트는 FastMCP 기반 **HTTP MCP 서버**입니다.
-- 기본 엔드포인트: `https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp`
-- 전송 방식: Streamable HTTP(SSE) — `Accept: application/json, text/event-stream` 헤더가 필요합니다.
-- 인증이 필요한 경우 `Authorization: Bearer <TOKEN>` 헤더를 추가하세요.
+Cloud Run 배포는 `deploy.sh` 스크립트를 참고하세요.
 
-## ❓ 문제 해결
-
-### 설치 오류
 ```bash
-# httpx가 없다는 오류가 나면
-pip install httpx
+export GCP_PROJECT_ID=<PROJECT_ID>
+export MCP_API_KEY=<RANDOM_TOKEN>
+./deploy.sh
 ```
 
-### Claude Desktop에서 서버가 보이지 않음
-1. Claude Desktop의 **Settings → Connectors**에서 URL과 헤더가 올바르게 입력되었는지 확인
-2. `Accept` 헤더에 `application/json`과 `text/event-stream` 값이 모두 포함되었는지 확인
-3. 변경 후 Claude Desktop을 완전히 종료하고 재시작
+배포 후 `Service URL` 로 위의 `curl` 테스트를 실행해 정상 동작을 확인합니다.
 
-### 연결 오류
-- 인터넷 연결 확인
-- Cloud Run 서버가 실행 중인지 확인
-
-## 📬 문의
-
-팀장 인사말: Claude Desktop에서 `team.greeting()` 실행
