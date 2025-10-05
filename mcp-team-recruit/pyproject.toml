@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-team-recruit"
+version = "1.0.0"
+description = "MAICON 2025 팀 빌딩 MCP 서버 - HTTP wrapper for Claude Desktop"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "httpx>=0.24.0",
+]
+
+[project.scripts]
+mcp-team-recruit = "mcp_client:main"
