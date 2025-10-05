@@ -119,7 +119,11 @@ async def test_mcp_server():
                         "contact": "mcp_test@example.com",
                         "category": "장병",
                         "message": "MCP 프로토콜을 통한 자동 지원서 제출 테스트입니다.",
-                        "ai_subscriptions": "Claude Pro"
+                        "ai_subscriptions": "Claude Pro",
+                        "motivation": "테스트 동기",
+                        "experience": "테스트 경험",
+                        "organization": "테스트 조직",
+                        "portfolio_url": "https://example.com"
                     }
 
                     print(f"\n📝 제출할 지원서:")
