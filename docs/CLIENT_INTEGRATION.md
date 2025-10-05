@@ -1,6 +1,10 @@
 Client Integration Notes
 ========================
 
+DEPRECATED: 이 문서는 과거 Node stdio(JSON-RPC over stdio) 서버 연동 예시를 다룹니다.
+현재 저장소는 Python 기반 HTTP MCP 서버(`mcp-team-recruit/`)만을 제공합니다. 아래 내용은
+역사적 참고용으로 유지되며, 실제 사용은 `mcp-team-recruit/README.md`와 `INSTALL.md`를 참고하세요.
+
 Goal
 - Participants build a chat/community app with Google Login that connects to this server over MCP-style stdio JSON-RPC.
 
@@ -70,4 +74,3 @@ Security Checklist (Production)
 - Store sessions securely per connection; avoid passing tokens in tool args repeatedly.
 - Apply server-side rate limiting; validate all input against schema limits.
 - Consider moderation tools, message size limits, and abuse prevention.
-

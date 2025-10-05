@@ -1,6 +1,10 @@
 MCP Server Contract: OpenCommunity
 ==================================
 
+DEPRECATED: 이 문서는 과거 Node stdio(JSON-RPC over stdio) MCP 서버 사양을 정리한 것입니다.
+현재 저장소는 Python 기반 HTTP MCP 서버로 전환되었습니다(`mcp-team-recruit/`).
+이 문서는 참고용 아카이브로만 유지됩니다.
+
 Overview
 - Transport: Content-Length framed JSON-RPC over stdio.
 - Methods: `initialize`, `tools/list`, `tools/call`, `resources/list`, `resources/read`.
@@ -116,4 +120,3 @@ Auth Notes (production)
 - Verify Google ID token signature using Google JWKS (`kid` from header), issuer, audience, exp.
 - Associate session to connection; avoid sending tokens on every call.
 - Consider per-room ACLs, moderation tools, and rate limiting.
-

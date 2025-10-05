@@ -95,14 +95,10 @@ npx @modelcontextprotocol/inspector
 team.faq()
 ```
 
-### 2. 모집 역할 확인
-리소스 탭에서 `roles://openings` 조회
-
-### 3. 자기소개 양식 받기
+### 2. 자기소개 양식 받기
 ```
-intro_template(role="Vision Engineer")
+intro_template()
 ```
-※ `role`은 희망 역할로 변경
 
 ### 4. 지원서 제출
 ```python
@@ -190,12 +186,8 @@ node --version
 - `team.faq()` - 대회 및 팀 FAQ
 - `team.apply(payload)` - 지원서 제출
 
-### 사용 가능한 리소스 (Resources)
-- `roles://openings` - 모집 역할 및 요구사항
-- `event://timeline` - 대회 일정
-
 ### 사용 가능한 프롬프트 (Prompts)
-- `intro_template(role)` - 역할별 자기소개 양식
+- `intro_template()` - 지원서 작성 가이드 템플릿
 
 ---
 

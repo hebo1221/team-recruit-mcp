@@ -58,6 +58,7 @@ curl -i \
   -X POST "https://<YOUR_DEPLOYED_URL>/mcp" \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
+  -H 'Authorization: Bearer <YOUR_TOKEN>' \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"clientInfo":{"name":"curl","version":"1.0"},"protocolVersion":"2024-11-05"}}'
 ```
 
