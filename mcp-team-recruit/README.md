@@ -48,6 +48,8 @@ team.ping() 도구를 실행해줘
 - **team.faq()** - 자주 묻는 질문
 - **team.apply()** - 팀 지원서 제출
 
+Tip: 실제 지원에서는 모든 상세 내용을 `message` 필드 하나에 한 번에 서술하고, `motivation`, `experience`, `organization`, `portfolio_url`, `ai_subscriptions` 등 선택 항목도 필요에 따라 채워 주세요. LLM을 사용할 경우 `team.apply(payload={...})` 형태로 정확한 키를 사용하고, 제출 전 필수 필드와 길이를 다시 점검하세요.
+
 ## 📝 지원서 제출 예시
 
 ```

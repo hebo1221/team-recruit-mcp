@@ -106,7 +106,7 @@ intro_template(role="Vision Engineer")
 
 ### 4. 지원서 제출
 ```python
-team.apply({
+team.apply(payload={
   "name": "김정훈",
   "contact": "kjh@example.com",
   "category": "장병",
@@ -121,8 +121,17 @@ team.apply({
 - `category`: 구분 ("장병" / "사관생도" / "일반인")
 
 #### 선택 필드
-- `message`: 자기소개/경험 (문자열, 최대 2000자)
+- `message`: 자기소개/목표/추가 정보 (문자열, 최대 2000자)
+- `motivation`: 지원 동기 (문자열, 최대 2000자)
+- `experience`: 경험 요약 (문자열, 최대 2000자)
+- `organization`: 소속/기관 (문자열, 최대 200자)
+- `portfolio_url`: 포트폴리오 URL (문자열, 최대 500자)
 - `ai_subscriptions`: 현재 구독 중인 AI 서비스 (문자열, 최대 500자)
+
+### 🤖 LLM 사용 시 주의
+- 도구 호출은 반드시 `team.apply(payload={...})` 형태로 하세요.
+- 필수 키(`name`, `contact`, `category`) 누락 금지, 값 길이/허용값 점검 후 호출.
+- 실제 지원에서는 모든 상세 내용을 `message` 필드 하나에 한 번에 정리해 주세요. (정보 분산/누락 방지)
 
 ### 5. 제출 확인
 성공 시 다음과 같은 응답을 받습니다:
