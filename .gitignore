@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.bun/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+.env
+.env.*
+.envrc
+.direnv/
+.mypy_cache/
+.pytype/
+.pytest_cache/
+.tox/
+.coverage*
+.hypothesis/
+
+# Editors
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Local tooling
+.claude/
+.cache/
+
+# OS/others
+Thumbs.db

@@ -1,0 +1,15 @@
+{
+  "name": "open-community-mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal MCP-like stdio JSON-RPC server with Google login exchange stub and community chat tools.",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
+

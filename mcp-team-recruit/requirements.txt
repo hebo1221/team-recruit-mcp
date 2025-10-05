@@ -1,0 +1,13 @@
+# MCP 서버 의존성
+mcp>=0.1.0
+
+# 웹 서버
+uvicorn>=0.30.0
+starlette>=0.38.0
+
+# 데이터 검증
+pydantic>=2.7.0
+email-validator>=2.1.0
+
+# HTTP 클라이언트 (슬랙 웹훅용)
+httpx>=0.27.0
