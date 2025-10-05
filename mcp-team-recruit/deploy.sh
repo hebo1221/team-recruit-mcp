@@ -90,7 +90,7 @@ gcloud run deploy "$SERVICE_NAME" \
     --cpu 1 \
     --memory 512Mi \
     --timeout 60s \
-    --concurrency 80 \
+    --concurrency 1 \
     --port 8080
 
 # --- 배포 완료 ---
