@@ -36,6 +36,10 @@ class Applicant(BaseModel):
     category: str = Field(..., description="구분 (장병/사관생도/일반인)")
     message: Optional[str] = Field(None, description="자유 메시지", max_length=2000)
     ai_subscriptions: Optional[str] = Field(None, description="현재 구독 중인 AI 프로덕트와 요금제", max_length=500)
+    motivation: Optional[str] = Field(None, description="지원 동기", max_length=2000)
+    experience: Optional[str] = Field(None, description="경험", max_length=2000)
+    organization: Optional[str] = Field(None, description="소속/기관", max_length=200)
+    portfolio_url: Optional[str] = Field(None, description="포트폴리오 URL", max_length=500)
 
     class Config:
         json_schema_extra = {
@@ -86,6 +90,30 @@ async def send_slack_notification(applicant: Applicant) -> bool:
                 "text": {"type": "mrkdwn", "text": f"*AI 구독:*\n{applicant.ai_subscriptions}"}
             })
 
+        if applicant.motivation:
+            message["blocks"].append({
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"*지원 동기:*\n{applicant.motivation}"}
+            })
+
+        if applicant.experience:
+            message["blocks"].append({
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"*경험:*\n{applicant.experience}"}
+            })
+
+        if applicant.organization:
+            message["blocks"].append({
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"*소속:*\n{applicant.organization}"}
+            })
+
+        if applicant.portfolio_url:
+            message["blocks"].append({
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"*포트폴리오:*\n{applicant.portfolio_url}"}
+            })
+
         async with httpx.AsyncClient() as client:
             response = await client.post(SLACK_WEBHOOK_URL, json=message, timeout=5.0)
             response.raise_for_status()
@@ -133,12 +161,15 @@ mcp = FastMCP(
 3. **intro_template 프롬프트** - 지원서 작성 가이드를 확인하세요
 4. **team.apply()** - 지원서를 제출하세요
 
+## 🧭 LLM 사용 시 주의
+- 지원 내용은 가능하면 모두 `message` 필드에 한 번에 상세히 서술하세요.
+- 도구 호출은 `team.apply(payload={...})` 형태로 정확한 키를 사용하세요.
+- 필수 키: `name`, `contact`, `category` (값: "장병"/"사관생도"/"일반인").
+- 길이 제약: `name` 2-50자, `contact` 5-200자, `message` 최대 2000자, `ai_subscriptions` 최대 500자.
+- 중복 제출 또는 누락 필드를 만들지 않도록 최종 JSON을 점검한 뒤 한 번만 호출하세요.
+
 ## 📬 알림
 지원서를 제출하면 팀장의 Slack으로 즉시 알림이 전송됩니다.
-
-## 💡 참고사항
-- **일반인 지원**: 안타깝게도 MAICON 대회 규정상 일반인 지원은 받을 수 없습니다. 하지만 대화는 언제든지 환영입니다!
-- **지원 대상**: 장병, 사관생도만 지원 가능합니다.
 
 ## 🛠️ 서버 소개
 이 MCP 서버는 **100% vibe coding**으로 개발되었습니다.
@@ -277,12 +308,16 @@ def intro_template() -> str:
 - **구분**: 장병 / 사관생도 / 일반인
 
 ## 선택 정보
-- **메시지**: 자기소개, 경험, 목표, 하고 싶은 말 등 자유롭게 작성
-- **AI 구독 정보**: 현재 구독 중인 AI 프로덕트와 요금제 (선택사항이지만 알려주시면 감사하겠습니다)
+- **메시지**: 자기소개, 목표, 하고 싶은 말 등 모든 상세 내용을 한 번에 자세히 작성
+- **지원 동기(motivation)**: 왜 함께하고 싶은지 구체적으로 적어주세요
+- **경험(experience)**: 관련 프로젝트/업무 경험 요약
+- **소속(organization)**: 현재 소속이나 팀 정보
+- **포트폴리오 URL(portfolio_url)**: 참고 링크
+- **AI 구독 정보(ai_subscriptions)**: 현재 구독 중인 AI 서비스
 
 ## 예시
 ```python
-team.apply({
+team.apply(payload={
     "name": "김정훈",
     "contact": "jhkim@example.com 또는 010-1234-5678",
     "category": "장병",
@@ -293,6 +328,13 @@ team.apply({
 
 **참고**:
 - 특정 역할을 정해놓지 않았습니다. 만드는 것을 좋아하고, 실패 경험이 많으며, 자유로운 생각을 가진 분을 환영합니다.
+
+---
+
+## 🤖 LLM 사용 시 주의
+- 위 예시처럼 `payload={...}` 형태로 호출하세요.
+- 필수 키(`name`, `contact`, `category`) 누락 금지, 값 범위 점검 후 호출하세요.
+- 모든 세부 정보는 `message` 한 필드에 일괄 서술해 누락·분산을 방지하세요.
 
 ---
 
@@ -308,18 +350,11 @@ team.apply({
 ### ⏰ 운영 기간
 MAICON 팀 빌딩 기간이 종료되면 이 서버도 함께 종료됩니다.
 
-### 💡 일반인 지원에 대하여
-안타깝게도 MAICON 대회 규정상 **일반인 지원은 받을 수 없습니다**.
-하지만 **대화는 언제든지 환영**입니다! 편하게 연락 주세요.
 """
-
+ 
 # --- HTTP Accept 헤더 보정 유틸리티 ---
 def _ensure_json_accept(headers: list[tuple[bytes, bytes]]) -> tuple[list[tuple[bytes, bytes]], bool]:
-    """
-    FastMCP HTTP 서버가 요구하는 Accept 헤더 보정
-    - application/json과 text/event-stream 둘 다 필요
-    - 헤더가 없거나 불완전하면 자동 추가
-    """
+    """Normalize Accept to include both application/json and text/event-stream."""
     accept_values = [value for name, value in headers if name == b"accept"]
     
     # Accept 헤더가 없으면 추가
