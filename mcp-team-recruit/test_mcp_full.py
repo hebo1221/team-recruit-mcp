@@ -5,8 +5,13 @@ MCP SDK를 사용한 실제 프로토콜 테스트
 """
 import asyncio
 import json
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+
+import httpx
+
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+
+from server import app
 
 async def test_mcp_server():
     """MCP 서버 전체 기능 테스트"""
@@ -14,17 +19,27 @@ async def test_mcp_server():
     print("MCP 팀 리크루팅 서버 - 전체 통합 테스트")
     print("=" * 70)
 
-    # MCP 서버 실행 파라미터
-    server_params = StdioServerParameters(
-        command="python",
-        args=["server.py"],
-        env={
-            "MCP_API_KEY": "81e3309185b4ea4f64c36b079542c1be1b5a4a7fb9d29474",
-            "PORT": "8080"
+    def _httpx_client_factory(headers=None, timeout=None, auth=None):
+        """Create AsyncClient bound to the in-process ASGI app."""
+        transport = httpx.ASGITransport(app=app)
+        kwargs = {
+            "transport": transport,
+            "base_url": "http://testserver",
+            "follow_redirects": True,
         }
-    )
+        if headers is not None:
+            kwargs["headers"] = headers
+        if timeout is not None:
+            kwargs["timeout"] = timeout
+        if auth is not None:
+            kwargs["auth"] = auth
+        return httpx.AsyncClient(**kwargs)
 
-    async with stdio_client(server_params) as (read, write):
+    async with streamablehttp_client(
+        "http://testserver/mcp",
+        headers={"Accept": "application/json, text/event-stream"},
+        httpx_client_factory=_httpx_client_factory,
+    ) as (read, write, _):
         async with ClientSession(read, write) as session:
             # Initialize
             await session.initialize()
@@ -95,12 +110,10 @@ async def test_mcp_server():
 
             test_applicant = {
                 "name": "MCP 테스트 지원자",
-                "email": "mcp_test@example.com",
-                "role": "Full Stack Developer",
-                "github": "https://github.com/mcptest",
-                "skills": ["Python", "MCP", "FastAPI", "React"],
-                "time_per_week": 30,
-                "notes": "MCP 프로토콜을 통한 자동 지원서 제출 테스트입니다."
+                "contact": "mcp_test@example.com",
+                "category": "장병",
+                "message": "MCP 프로토콜을 통한 자동 지원서 제출 테스트입니다.",
+                "ai_subscriptions": "Claude Pro"
             }
 
             print(f"\n📝 제출할 지원서:")

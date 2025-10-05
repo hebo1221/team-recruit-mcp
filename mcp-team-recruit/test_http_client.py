@@ -95,12 +95,10 @@ async def test_all_features():
 
                 valid_applicant = {
                     "name": "HTTP 클라이언트 테스트",
-                    "email": "http_test@example.com",
-                    "role": "Backend Developer",
-                    "github": "https://github.com/httptest",
-                    "skills": ["Python", "FastAPI", "MCP"],
-                    "time_per_week": 15,
-                    "notes": "HTTP MCP 클라이언트를 통한 지원서 제출 테스트"
+                    "contact": "http_test@example.com",
+                    "category": "장병",
+                    "message": "HTTP MCP 클라이언트를 통한 지원서 제출 테스트",
+                    "ai_subscriptions": "Claude Pro"
                 }
 
                 print(f"\n📝 제출할 지원서:")
@@ -126,10 +124,9 @@ async def test_all_features():
                 print("=" * 70)
 
                 invalid_applicant = {
-                    "name": "테스트",
-                    "email": "invalid-email-format",  # 잘못된 이메일
-                    "role": "Developer",
-                    "time_per_week": 150  # 범위 초과 (1-80)
+                    "name": "테",
+                    "contact": "123",
+                    "category": "기타"
                 }
 
                 print(f"\n📝 제출할 지원서 (잘못된 형식):")
