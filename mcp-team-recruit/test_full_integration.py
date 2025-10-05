@@ -25,20 +25,18 @@ async def test_full_workflow():
     # 테스트 지원자
     applicant = Applicant(
         name="최종 통합 테스트",
-        email="integration_test@example.com",
-        role="Full Stack Developer",
-        github="https://github.com/integration",
-        skills=["Python", "MCP", "Slack API", "GCP"],
-        time_per_week=30,
-        notes="전체 통합 테스트: 지원서 저장 및 Slack 알림 검증"
+        contact="integration_test@example.com",
+        category="장병",
+        message="전체 통합 테스트: 지원서 저장 및 Slack 알림 검증",
+        ai_subscriptions="Claude Pro"
     )
 
     print(f"\n1️⃣  지원자 정보:")
     print(f"   이름: {applicant.name}")
-    print(f"   이메일: {applicant.email}")
-    print(f"   역할: {applicant.role}")
-    print(f"   스킬: {', '.join(applicant.skills)}")
-    print(f"   주당 시간: {applicant.time_per_week}시간")
+    print(f"   연락처: {applicant.contact}")
+    print(f"   구분: {applicant.category}")
+    if applicant.ai_subscriptions:
+        print(f"   AI 구독: {applicant.ai_subscriptions}")
 
     # Step 1: 파일 저장
     print(f"\n2️⃣  파일 저장 중...")
@@ -54,7 +52,7 @@ async def test_full_workflow():
             last_entry = json.loads(lines[-1])
             print(f"   ✅ 마지막 저장 항목:")
             print(f"      - 이름: {last_entry['name']}")
-            print(f"      - 이메일: {last_entry['email']}")
+            print(f"      - 연락처: {last_entry['contact']}")
             print(f"      - 타임스탬프: {last_entry['timestamp']}")
     else:
         print("   ❌ 파일 저장 실패")

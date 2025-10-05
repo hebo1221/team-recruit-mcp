@@ -23,19 +23,18 @@ async def test_slack():
     # 테스트 지원자
     test_applicant = Applicant(
         name="김정훈 (Slack 테스트)",
-        email="slack_test@example.com",
-        role="Vision Engineer",
-        github="https://github.com/kjh",
-        skills=["YOLO", "DeepStream", "PyTorch", "Jetson"],
-        time_per_week=25,
-        notes="Slack 알림 통합 테스트입니다. 이 메시지가 보이면 성공!"
+        contact="slack_test@example.com",
+        category="장병",
+        message="Slack 알림 통합 테스트입니다. 이 메시지가 보이면 성공!",
+        ai_subscriptions="Claude Pro"
     )
 
     print(f"\n📝 테스트 지원자:")
     print(f"   이름: {test_applicant.name}")
-    print(f"   이메일: {test_applicant.email}")
-    print(f"   역할: {test_applicant.role}")
-    print(f"   스킬: {', '.join(test_applicant.skills)}")
+    print(f"   연락처: {test_applicant.contact}")
+    print(f"   구분: {test_applicant.category}")
+    if test_applicant.ai_subscriptions:
+        print(f"   AI 구독: {test_applicant.ai_subscriptions}")
 
     print("\n📤 Slack 알림 전송 중...")
 

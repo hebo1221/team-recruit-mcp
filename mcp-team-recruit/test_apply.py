@@ -18,12 +18,10 @@ def test_applicant_validation():
     try:
         valid_applicant = Applicant(
             name="테스트 지원자",
-            email="test@example.com",
-            role="Vision Engineer",
-            github="https://github.com/testuser",
-            skills=["YOLO", "PyTorch", "DeepStream"],
-            time_per_week=20,
-            notes="로컬 테스트용 지원서입니다."
+            contact="test@example.com",
+            category="장병",
+            message="로컬 테스트용 지원서입니다.",
+            ai_subscriptions="Claude Pro"
         )
         print("✅ 정상 케이스: 검증 성공")
         print(f"   {valid_applicant.dict()}")
@@ -33,29 +31,15 @@ def test_applicant_validation():
 
     # 비정상 케이스 1: 이메일 형식 오류
     try:
-        invalid_email = Applicant(
-            name="테스트",
-            email="invalid-email",
-            role="Developer",
-            time_per_week=10
+        invalid_contact = Applicant(
+            name="테",
+            contact="123",
+            category="일반인"
         )
-        print("❌ 이메일 검증 실패 (통과해서는 안됨)")
+        print("❌ 연락처 검증 실패 (통과해서는 안됨)")
         return False
     except Exception as e:
-        print(f"✅ 이메일 검증: 올바르게 거부됨 ({type(e).__name__})")
-
-    # 비정상 케이스 2: 시간 범위 초과
-    try:
-        invalid_time = Applicant(
-            name="테스트",
-            email="test@example.com",
-            role="Developer",
-            time_per_week=100  # 1-80 범위 초과
-        )
-        print("❌ 시간 범위 검증 실패 (통과해서는 안됨)")
-        return False
-    except Exception as e:
-        print(f"✅ 시간 범위 검증: 올바르게 거부됨 ({type(e).__name__})")
+        print(f"✅ 연락처 검증: 올바르게 거부됨 ({type(e).__name__})")
 
     return True
 
@@ -66,12 +50,10 @@ def test_file_storage():
     # 테스트 지원자 생성
     applicant = Applicant(
         name="김정훈",
-        email="kjh@example.com",
-        role="Vision Engineer",
-        github="https://github.com/kjh",
-        skills=["YOLO", "DeepStream", "PyTorch", "Jetson"],
-        time_per_week=25,
-        notes="도로교통 영상 인식 프로젝트 3건 경험. DeepStream 최적화에 관심 많습니다."
+        contact="kjh@example.com",
+        category="장병",
+        message="도로교통 영상 인식 프로젝트 3건 경험. DeepStream 최적화에 관심 많습니다.",
+        ai_subscriptions="Claude Pro, ChatGPT Plus"
     )
 
     # 저장
@@ -93,9 +75,10 @@ def test_file_storage():
                     last_entry = json.loads(lines[-1])
                     print(f"✅ 저장된 데이터:")
                     print(f"   이름: {last_entry['name']}")
-                    print(f"   이메일: {last_entry['email']}")
-                    print(f"   역할: {last_entry['role']}")
-                    print(f"   시간: {last_entry['time_per_week']}시간/주")
+                    print(f"   연락처: {last_entry['contact']}")
+                    print(f"   구분: {last_entry['category']}")
+                    if last_entry.get('ai_subscriptions'):
+                        print(f"   AI 구독: {last_entry['ai_subscriptions']}")
                     print(f"   타임스탬프: {last_entry['timestamp']}")
                 else:
                     print("⚠️  파일은 있으나 내용이 비어있음")
@@ -115,25 +98,23 @@ def test_multiple_applications():
     applicants = [
         Applicant(
             name="이영희",
-            email="yhlee@example.com",
-            role="LLM Engineer",
-            skills=["RAG", "vLLM", "LoRA"],
-            time_per_week=15
+            contact="yhlee@example.com",
+            category="사관생도",
+            message="LLM 파이프라인 구축 경험 보유",
         ),
         Applicant(
             name="박철수",
-            email="cspark@example.com",
-            role="MLOps Engineer",
-            skills=["Docker", "Kubernetes", "MLflow"],
-            time_per_week=20
+            contact="cspark@example.com",
+            category="장병",
+            message="MLOps 자동화 경험",
+            ai_subscriptions="Claude Pro"
         ),
         Applicant(
             name="최민수",
-            email="mscho@example.com",
-            role="Backend Developer",
-            skills=["FastAPI", "PostgreSQL", "Redis"],
-            time_per_week=18,
-            notes="API 설계 및 대용량 트래픽 처리 경험 3년"
+            contact="mscho@example.com",
+            category="장병",
+            message="API 설계 및 대용량 트래픽 처리 경험 3년",
+            ai_subscriptions="ChatGPT Plus"
         )
     ]
 

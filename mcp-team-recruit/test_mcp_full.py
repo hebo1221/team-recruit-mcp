@@ -21,7 +21,7 @@ async def test_mcp_server():
 
     def _httpx_client_factory(headers=None, timeout=None, auth=None):
         """Create AsyncClient bound to the in-process ASGI app."""
-        transport = httpx.ASGITransport(app=app)
+        transport = httpx.ASGITransport(app=app, lifespan="on")
         kwargs = {
             "transport": transport,
             "base_url": "http://testserver",

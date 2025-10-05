@@ -21,7 +21,7 @@ def test_user_workflow():
     """전체 이용자 워크플로우 테스트"""
 
     print_section("🎯 이용자 관점 MCP 서버 테스트")
-    print("\n이용자: 김정훈 (Vision Engineer 지원자)")
+    print("\n이용자: 김정훈 (장병 지원자)")
     print("시나리오: 대회 팀 빌딩 지원서 제출 전체 과정")
 
     # Step 1: 서버 연결 확인 (ping)
@@ -67,7 +67,7 @@ def test_user_workflow():
     print("   - 팀 빌딩 기간: 2025-10-05 ~ 2025-10-12")
     print("   - 개발 기간: 2025-10-13 ~ 2025-11-10")
     print("   - 제출 마감: 2025-11-15")
-    print("\n   ✅ 일정 확인 완료, 주당 25시간 투입 가능")
+    print("\n   ✅ 일정 확인 완료, 투입 가능 시간 확인")
 
     # Step 5: 지원서 양식 확인
     print_section("5️⃣  Step 5: 지원서 양식 확인 (intro_template 프롬프트)")
@@ -82,22 +82,18 @@ def test_user_workflow():
 
     application_data = {
         "name": "김정훈 (이용자 테스트)",
-        "email": "user_test@example.com",
-        "role": "Vision Engineer",
-        "github": "https://github.com/kjh-vision",
-        "portfolio": "https://kjh-vision.dev",
-        "skills": ["YOLO", "DeepStream", "PyTorch", "Jetson", "CUDA"],
-        "time_per_week": 25,
-        "notes": "도로교통 영상 인식 프로젝트 3건 경험. 실시간 객체 인식 최적화에 관심이 많습니다. 이번 대회를 통해 팀과 함께 성장하고 싶습니다."
+        "contact": "user_test@example.com",
+        "category": "장병",
+        "message": "도로교통 영상 인식 프로젝트 3건 경험. 실시간 객체 인식 최적화에 관심이 많습니다. 이번 대회를 통해 팀과 함께 성장하고 싶습니다.",
+        "ai_subscriptions": "Claude Pro"
     }
 
     print("\n   제출 데이터:")
     print(f"   - 이름: {application_data['name']}")
-    print(f"   - 이메일: {application_data['email']}")
-    print(f"   - 역할: {application_data['role']}")
-    print(f"   - GitHub: {application_data['github']}")
-    print(f"   - 스킬: {', '.join(application_data['skills'])}")
-    print(f"   - 주당 시간: {application_data['time_per_week']}시간")
+    print(f"   - 연락처: {application_data['contact']}")
+    print(f"   - 구분: {application_data['category']}")
+    if application_data.get('ai_subscriptions'):
+        print(f"   - AI 구독: {application_data['ai_subscriptions']}")
 
     # Note: HTTP MCP 프로토콜 테스트는 복잡하므로,
     # 실제 제출 대신 데이터 검증과 예상 결과를 보여줌
@@ -132,8 +128,8 @@ def test_user_workflow():
                 last_entry = json.loads(lines[-1])
                 print(f"\n   📝 최근 지원서:")
                 print(f"      - 이름: {last_entry['name']}")
-                print(f"      - 이메일: {last_entry['email']}")
-                print(f"      - 역할: {last_entry['role']}")
+                print(f"      - 연락처: {last_entry['contact']}")
+                print(f"      - 구분: {last_entry['category']}")
                 print(f"      - 제출 시간: {last_entry['timestamp']}")
 
     print("\n   ✅ 데이터 저장 확인 완료")
