@@ -14,44 +14,24 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Claude Desktop 설정
+### 2. Claude Desktop HTTP 커넥터 등록
 
-**설정 파일 위치**:
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
-
-**설정 추가** (경로를 실제 프로젝트 경로로 변경):
+1. Claude Desktop을 실행하고 **Settings → Connectors** 메뉴로 이동합니다.
+2. **Add custom connector**를 선택하고 아래 값을 입력합니다.
 
 ```json
 {
-  "mcpServers": {
-    "maicon2025-team-recruit": {
-      "command": "/절대경로/mcp-team-recruit/venv/bin/python3",
-      "args": [
-        "/절대경로/mcp-team-recruit/mcp_stdio.py"
-      ]
-    }
+  "name": "MAICON 2025 Team Recruit",
+  "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp",
+  "headers": {
+    "Accept": "application/json, text/event-stream"
   }
 }
 ```
 
-**Windows 예시**:
-```json
-{
-  "mcpServers": {
-    "maicon2025-team-recruit": {
-      "command": "C:\\Users\\YourName\\mcp-team-recruit\\venv\\Scripts\\python.exe",
-      "args": [
-        "C:\\Users\\YourName\\mcp-team-recruit\\mcp_stdio.py"
-      ]
-    }
-  }
-}
-```
+> 인증 토큰을 사용 중이라면 `headers`에 `Authorization` 헤더를 함께 추가하세요.
 
-### 3. Claude Desktop 재시작
-
-설정을 적용하려면 Claude Desktop을 완전히 종료 후 재시작하세요.
+3. 저장한 뒤 Claude Desktop을 재시작하면 커넥터가 목록에 나타납니다.
 
 ## 🔧 사용 방법
 
@@ -90,18 +70,21 @@ AI 구독: Claude Pro
 
 ### MCP 서버가 연결되지 않을 때
 
-1. **경로 확인**: `claude_desktop_config.json`의 경로가 정확한지 확인
-2. **JSON 형식 확인**: 쉼표, 중괄호 등이 올바른지 확인
-3. **Claude Desktop 재시작**: 완전히 종료 후 재시작
+1. **HTTP 헤더 확인**: `Accept` 헤더에 `application/json`과 `text/event-stream`이 모두 포함되어야 합니다.
+2. **Authorization**: 토큰을 요구하는 환경이라면 `Authorization: Bearer <TOKEN>`을 함께 전달하세요.
+3. **재시작**: 커넥터 추가 후 Claude Desktop을 완전히 종료했다가 다시 실행해 주세요.
 
 ### 터미널에서 직접 테스트
 
 ```bash
-cd mcp-team-recruit
-echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' | venv/bin/python3 mcp_stdio.py
+curl -i \
+  -X POST "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp" \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"clientInfo":{"name":"curl","version":"1.0"},"protocolVersion":"2024-11-05"}}'
 ```
 
-정상 작동하면 JSON 응답이 출력됩니다.
+`HTTP/2 200`과 함께 `event: message` 형태의 SSE 응답이 내려오면 정상입니다.
 
 ## 📬 문의
 
