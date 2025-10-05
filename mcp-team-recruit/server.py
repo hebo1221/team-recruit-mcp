@@ -53,6 +53,27 @@ class Applicant(BaseModel):
         }
 
 # --- 유틸리티 함수 ---
+def _mask_contact(contact: str) -> str:
+    """Mask PII in contact info for logs (email/phone).
+    - Email: keep first char + domain (e.g., j***@example.com)
+    - Phone: keep last 4 digits (e.g., ***-****-1234)
+    - Fallback: first 3 chars then ***
+    """
+    try:
+        c = str(contact)
+        if "@" in c:
+            local, _, domain = c.partition("@")
+            if local:
+                return f"{local[0]}***@{domain}"
+            return f"***@{domain}"
+        digits = [ch for ch in c if ch.isdigit()]
+        if len(digits) >= 4:
+            return f"***{''.join(digits[-4:])}"
+        return (c[:3] + "***") if len(c) > 3 else "***"
+    except Exception:
+        return "***"
+
+
 async def send_slack_notification(applicant: Applicant) -> bool:
     """슬랙 웹훅으로 지원서 알림 전송"""
     if not SLACK_WEBHOOK_URL:
@@ -132,7 +153,7 @@ def save_applicant(applicant: Applicant) -> bool:
         }
         with open(APPLICANTS_FILE, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
-        logger.info(f"Applicant saved: {applicant.contact}")
+        logger.info(f"Applicant saved: {_mask_contact(applicant.contact)}")
         return True
     except Exception as e:
         logger.error(f"Failed to save applicant: {e}")
@@ -258,7 +279,9 @@ async def apply(payload: Applicant, ctx: Context) -> dict:
         # 슬랙 알림 (비동기)
         slack_success = await send_slack_notification(applicant)
 
-        logger.info(f"Application processed: {applicant.contact} (save={save_success}, slack={slack_success})")
+        logger.info(
+            f"Application processed: {_mask_contact(applicant.contact)} (save={save_success}, slack={slack_success})"
+        )
 
         return {
             "ok": True,
@@ -423,11 +446,28 @@ def _wrap_with_accept_normalizer(asgi_app):
         return updated
 
     async def middleware(scope, receive, send):
-        if scope.get("type") != "http" or scope.get("path") != stream_path:
+        if scope.get("type") != "http":
             await asgi_app(scope, receive, send)
             return
 
+        path = scope.get("path")
         method = scope.get("method")
+
+        # Health check endpoint
+        if path == "/healthz" and method == "GET":
+            headers = [
+                (b"content-type", b"text/plain; charset=utf-8"),
+                (b"access-control-allow-origin", cors_allow_origin),
+                (b"access-control-expose-headers", cors_expose_headers),
+            ]
+            await send({"type": "http.response.start", "status": 200, "headers": headers})
+            await send({"type": "http.response.body", "body": b"ok"})
+            return
+
+        if path != stream_path:
+            await asgi_app(scope, receive, send)
+            return
+
         if method == "OPTIONS":
             headers = [
                 (b"access-control-allow-origin", cors_allow_origin),
@@ -445,6 +485,23 @@ def _wrap_with_accept_normalizer(asgi_app):
             if changed:
                 scope = dict(scope)
                 scope["headers"] = normalized_headers
+
+            # Authorization: Bearer <MCP_API_KEY>
+            if API_KEY:
+                auth_values = [value for (name, value) in scope["headers"] if name == b"authorization"]
+                token = auth_values[0] if auth_values else b""
+                expected = ("Bearer " + API_KEY).encode("latin-1")
+                if token != expected:
+                    resp_headers = [
+                        (b"content-type", b"application/json; charset=utf-8"),
+                        (b"access-control-allow-origin", cors_allow_origin),
+                        (b"access-control-expose-headers", cors_expose_headers),
+                        (b"www-authenticate", b"Bearer"),
+                    ]
+                    body = json.dumps({"error": "unauthorized"}).encode("utf-8")
+                    await send({"type": "http.response.start", "status": 401, "headers": resp_headers})
+                    await send({"type": "http.response.body", "body": body})
+                    return
 
             async def send_with_cors(message):
                 if message["type"] == "http.response.start":
