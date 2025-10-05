@@ -108,26 +108,21 @@ intro_template(role="Vision Engineer")
 ```python
 team.apply({
   "name": "김정훈",
-  "email": "kjh@example.com",
-  "role": "Vision Engineer",
-  "github": "https://github.com/kjh",
-  "skills": ["YOLO", "DeepStream", "PyTorch", "Jetson"],
-  "time_per_week": 20,
-  "notes": "도로교통 영상 인식 프로젝트 3건 경험. DeepStream 최적화에 관심 많습니다."
+  "contact": "kjh@example.com",
+  "category": "장병",
+  "message": "도로교통 영상 인식 프로젝트 3건 경험. DeepStream 최적화에 관심 많습니다.",
+  "ai_subscriptions": "Claude Pro"
 })
 ```
 
 #### 필수 필드
 - `name`: 이름 (문자열, 2-50자)
-- `email`: 이메일 (유효한 이메일 형식)
-- `role`: 희망 역할 (문자열)
-- `time_per_week`: 주당 투입 시간 (숫자, 1-80)
+- `contact`: 연락처 (이메일, 전화번호, 오픈채팅 등 5-200자)
+- `category`: 구분 ("장병" / "사관생도" / "일반인")
 
 #### 선택 필드
-- `github`: GitHub URL (문자열)
-- `portfolio`: 포트폴리오 URL (문자열)
-- `skills`: 보유 스킬 (문자열 배열)
-- `notes`: 추가 메시지 (문자열, 최대 1000자)
+- `message`: 자기소개/경험 (문자열, 최대 2000자)
+- `ai_subscriptions`: 현재 구독 중인 AI 서비스 (문자열, 최대 500자)
 
 ### 5. 제출 확인
 성공 시 다음과 같은 응답을 받습니다:
@@ -161,9 +156,9 @@ team.apply({
 
 **해결**:
 1. 에러 메시지의 `error` 배열 확인
-2. 필수 필드가 모두 포함되었는지 확인
-3. 이메일 형식이 올바른지 확인
-4. `time_per_week`가 1-80 범위인지 확인
+2. 필수 필드(`name`, `contact`, `category`)가 모두 포함되었는지 확인
+3. 연락처 길이가 5자 이상인지 확인
+4. 구분이 허용된 값인지 확인 (장병/사관생도/일반인)
 
 ### MCP Inspector가 실행되지 않음
 **증상**: `npx` 명령 실패
