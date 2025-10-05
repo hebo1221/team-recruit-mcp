@@ -21,14 +21,14 @@ pip install -r requirements.txt
   ```json
   {
     "name": "MAICON 2025 Team Recruit",
-    "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp"
+    "url": "https://<YOUR_DEPLOYED_URL>/mcp"
   }
   ```
 
 - **Cursor 등 기타 MCP 클라이언트**: 설정 파일에 동일한 URL을 등록하면 됩니다.
   ```json
     "maicon2025-team-recruit": {
-      "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp"
+      "url": "https://<YOUR_DEPLOYED_URL>/mcp"
     }
   ```
 > 인증 토큰이 필요한 환경이라면 `Authorization: Bearer <TOKEN>` 헤더를 추가하세요.
@@ -73,7 +73,7 @@ AI 구독: Claude Pro
 
 ```bash
 curl -i \
-  -X POST "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp" \
+  -X POST "https://<YOUR_DEPLOYED_URL>/mcp" \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"clientInfo":{"name":"curl","version":"1.0"},"protocolVersion":"2024-11-05"}}'
@@ -88,7 +88,3 @@ curl -i \
 ## ⏰ 운영 기간
 
 MAICON 팀 빌딩 기간 종료 시 서버도 함께 종료됩니다.
-
----
-
-**개발 방식**: 100% vibe coding with Claude Code 🤖

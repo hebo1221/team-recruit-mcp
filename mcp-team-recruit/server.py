@@ -171,14 +171,6 @@ mcp = FastMCP(
 ## 📬 알림
 지원서를 제출하면 팀장의 Slack으로 즉시 알림이 전송됩니다.
 
-## 🛠️ 서버 소개
-이 MCP 서버는 **100% vibe coding**으로 개발되었습니다.
-- 개발 도구: Claude CLI (Claude Code)
-- 개발 시간: 약 4시간
-- 개발 방식: AI와의 대화를 통한 즉흥적 코딩
-
-재밌게 봐주세요! 😊
-
 ## ⏰ 운영 기간
 MAICON 팀 빌딩 기간이 종료되면 이 서버도 함께 종료됩니다.
 """
@@ -237,20 +229,28 @@ def faq() -> str:
 """
 
 @mcp.tool()
-async def apply(payload: dict, ctx: Context) -> dict:
+async def apply(payload: Applicant, ctx: Context) -> dict:
     """
     지원서 제출
 
-    Args:
-        payload: Applicant 스키마에 맞는 JSON 객체
+    Payload (Applicant) 스키마
+    - name: string, 2-50자 (필수)
+    - contact: string, 5-200자 (필수)
+    - category: string (예: "장병"/"사관생도"/"일반인" 등, 필수)
+    - message: string, 최대 2000자 (선택)
+    - ai_subscriptions: string, 최대 500자 (선택)
+    - motivation: string, 최대 2000자 (선택)
+    - experience: string, 최대 2000자 (선택)
+    - organization: string, 최대 200자 (선택)
+    - portfolio_url: string, 최대 500자 (선택)
 
     Returns:
-        성공 시 {"ok": True, "message": "...", "normalized": {...}}
-        실패 시 {"ok": False, "error": [...]}
+      - 성공: { ok: true, message, normalized, notifications }
+      - 실패: { ok: false, error, message }
     """
     try:
-        # 스키마 검증
-        applicant = Applicant(**payload)
+        # FastMCP가 타입 검증 후 인스턴스를 주지만, 안전을 위해 보정
+        applicant = payload if isinstance(payload, Applicant) else Applicant(**payload)
 
         # 저장
         save_success = save_applicant(applicant)
@@ -339,14 +339,6 @@ team.apply(payload={
 ---
 
 ## 🛠️ MCP 서버 소개
-
-이 서버는 **100% vibe coding**으로 개발되었습니다!
-- **개발 도구**: Claude CLI (Claude Code)
-- **개발 시간**: 약 4시간
-- **개발 방식**: AI와의 대화를 통한 즉흥적 코딩
-
-재밌게 봐주세요! 😊
-
 ### ⏰ 운영 기간
 MAICON 팀 빌딩 기간이 종료되면 이 서버도 함께 종료됩니다.
 

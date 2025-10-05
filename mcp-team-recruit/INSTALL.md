@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ## 2. 서버 실행 (로컬 개발용)
 
 ```bash
-export MCP_API_KEY=REDACTED
+export MCP_API_KEY=demo-key-not-secret
 uvicorn server:app --host 0.0.0.0 --port 8080
 ```
 
@@ -25,7 +25,7 @@ uvicorn server:app --host 0.0.0.0 --port 8080
 ```json
 {
   "name": "MAICON 2025 Team Recruit",
-  "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp",
+  "url": "https://<YOUR_DEPLOYED_URL>/mcp",
   "headers": {
     "Accept": "application/json, text/event-stream"
   }
@@ -42,7 +42,7 @@ uvicorn server:app --host 0.0.0.0 --port 8080
 {
   "mcpServers": {
     "maicon2025-team-recruit": {
-      "url": "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp",
+      "url": "https://<YOUR_DEPLOYED_URL>/mcp",
       "headers": {
         "Accept": "application/json, text/event-stream"
       }
@@ -55,7 +55,7 @@ uvicorn server:app --host 0.0.0.0 --port 8080
 
 ```bash
 curl -i \
-  -X POST "https://maicon2025-team-recruit-278861544731.asia-northeast3.run.app/mcp" \
+  -X POST "https://<YOUR_DEPLOYED_URL>/mcp" \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"clientInfo":{"name":"curl","version":"1.0"},"protocolVersion":"2024-11-05"}}'
@@ -80,4 +80,3 @@ export MCP_API_KEY=<RANDOM_TOKEN>
 ```
 
 배포 후 `Service URL` 로 위의 `curl` 테스트를 실행해 정상 동작을 확인합니다.
-
