@@ -118,7 +118,7 @@ def save_applicant(applicant: Applicant) -> bool:
 
 # --- MCP 서버 정의 ---
 mcp = FastMCP(
-    name="TeamRecruit",
+    name="maicon2025-team-recruit",
     instructions="""# 🎯 MAICON 대회 팀 빌딩 MCP 서버
 
 환영합니다! 이 서버를 통해 팀에 지원할 수 있습니다.
