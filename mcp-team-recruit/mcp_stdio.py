@@ -13,7 +13,6 @@ import os
 from pathlib import Path
 
 # 환경 변수 설정
-# 실제 비밀값 기본 주입 제거 (환경 변수에서만 읽도록)
 os.environ.setdefault('MCP_API_KEY', 'demo-key-not-secret')
 os.environ.setdefault('SLACK_WEBHOOK_URL', '')
 
