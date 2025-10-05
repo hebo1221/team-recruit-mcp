@@ -313,9 +313,130 @@ MAICON 팀 빌딩 기간이 종료되면 이 서버도 함께 종료됩니다.
 하지만 **대화는 언제든지 환영**입니다! 편하게 연락 주세요.
 """
 
+# --- HTTP Accept 헤더 보정 유틸리티 ---
+def _ensure_json_accept(headers: list[tuple[bytes, bytes]]) -> tuple[list[tuple[bytes, bytes]], bool]:
+    """
+    FastMCP HTTP 서버가 요구하는 Accept 헤더 보정
+    - application/json과 text/event-stream 둘 다 필요
+    - 헤더가 없거나 불완전하면 자동 추가
+    """
+    accept_values = [value for name, value in headers if name == b"accept"]
+    
+    # Accept 헤더가 없으면 추가
+    if not accept_values:
+        new_headers = list(headers)
+        new_headers.append((b"accept", b"application/json, text/event-stream"))
+        return new_headers, True
+
+    # 기존 Accept 값 파싱
+    combined = ",".join(value.decode("latin-1") for value in accept_values)
+    tokens: list[str] = []
+    seen: set[str] = set()
+    has_sse = False
+    has_json = False
+
+    for raw_part in combined.split(","):
+        token = raw_part.strip()
+        if not token:
+            continue
+        base = token.split(";")[0].strip().lower()
+        if base == "text/event-stream":
+            has_sse = True
+        if base == "application/json":
+            has_json = True
+        if base not in seen:
+            tokens.append(token)
+            seen.add(base)
+
+    # 둘 다 있으면 변경 불필요
+    if has_sse and has_json:
+        return headers, False
+
+    # 필요한 것 추가
+    if not has_json:
+        tokens.append("application/json")
+    if not has_sse:
+        tokens.append("text/event-stream")
+    
+    new_value = ", ".join(tokens)
+
+    # 헤더 교체
+    new_headers: list[tuple[bytes, bytes]] = []
+    replaced = False
+    for name, value in headers:
+        if name == b"accept":
+            if not replaced:
+                new_headers.append((name, new_value.encode("latin-1")))
+                replaced = True
+            continue
+        new_headers.append((name, value))
+
+    return new_headers, True
+
+
+def _wrap_with_accept_normalizer(asgi_app):
+    """Normalize Accept header and expose session headers for HTTP clients."""
+    stream_path = mcp.settings.streamable_http_path
+    cors_allow_origin = b"*"
+    cors_allow_methods = b"POST, OPTIONS"
+    cors_allow_headers = b"authorization, content-type, accept, mcp-session-id, mcp-protocol-version"
+    cors_expose_headers = b"mcp-session-id, mcp-protocol-version, last-event-id, content-type"
+
+    def _set_header(headers: list[tuple[bytes, bytes]], key: bytes, value: bytes) -> list[tuple[bytes, bytes]]:
+        updated: list[tuple[bytes, bytes]] = []
+        replaced = False
+        for name, current in headers:
+            if name == key and not replaced:
+                updated.append((name, value))
+                replaced = True
+            else:
+                updated.append((name, current))
+        if not replaced:
+            updated.append((key, value))
+        return updated
+
+    async def middleware(scope, receive, send):
+        if scope.get("type") != "http" or scope.get("path") != stream_path:
+            await asgi_app(scope, receive, send)
+            return
+
+        method = scope.get("method")
+        if method == "OPTIONS":
+            headers = [
+                (b"access-control-allow-origin", cors_allow_origin),
+                (b"access-control-allow-methods", cors_allow_methods),
+                (b"access-control-allow-headers", cors_allow_headers),
+                (b"access-control-max-age", b"600"),
+            ]
+            await send({"type": "http.response.start", "status": 204, "headers": headers})
+            await send({"type": "http.response.body", "body": b""})
+            return
+
+        if method == "POST":
+            headers = list(scope.get("headers", []))
+            normalized_headers, changed = _ensure_json_accept(headers)
+            if changed:
+                scope = dict(scope)
+                scope["headers"] = normalized_headers
+
+            async def send_with_cors(message):
+                if message["type"] == "http.response.start":
+                    response_headers = list(message.get("headers", []))
+                    response_headers = _set_header(response_headers, b"access-control-allow-origin", cors_allow_origin)
+                    response_headers = _set_header(response_headers, b"access-control-expose-headers", cors_expose_headers)
+                    message["headers"] = response_headers
+                await send(message)
+
+            await asgi_app(scope, receive, send_with_cors)
+            return
+
+        await asgi_app(scope, receive, send)
+
+    return middleware
+
 # --- HTTP 서버 실행 함수 ---
 # FastMCP streamable-http ASGI app 생성 (엔드포인트: POST /mcp)
-app = mcp.streamable_http_app()
+app = _wrap_with_accept_normalizer(mcp.streamable_http_app())
 
 if __name__ == "__main__":
     import uvicorn
